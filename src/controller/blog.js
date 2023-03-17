@@ -1,13 +1,23 @@
-const Io = require("../utils/Io")
-const Blogs = new Io("./src/db/blog.json")
-const {Blog} = require("../models/blog")
-const {v4:uuid} = require("uuid")
-const Joi = require("joi")
+const Io = require("../utils/Io");
+const Blogs = new Io("./src/db/blog.json");
+const Histories = new Io ("./src/db/history.json");
+const {Blog} = require("../models/blog");
+const {v4:uuid} = require("uuid");
+const Joi = require("joi");
+const {History} = require("../models/history.js")
 
 
-const Home =  (req, res) => {
+const Home = async  (req, res) => {
     try{
         res.render("blog");
+        const {status} = req.body
+        const histories = Histories.read()
+        const method = req.body.status = "METHOD: Get;";
+        const count = (histories[histories.length + 1]?.count || 0) + 1;
+        const newHistory = new History(method,count)
+        const allHistories = histories.length ? [newHistory] : [newHistory];
+        Histories.write(allHistories)
+        
     }catch(error){
 console.log(error.message);
     }
@@ -33,6 +43,8 @@ const Datas = async (req,res) =>{
     
 
  const blogs = await Blogs.read()
+ const history = await Histories.read()
+ 
  const format = image.mimetype.split("/")[1];
  const path = `${process.cwd()}/src/upload/${uuid()}.${format}`;
  const scheme = Joi.object({
